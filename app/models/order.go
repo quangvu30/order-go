@@ -14,7 +14,7 @@ type Order struct {
 	Packing          string             `bson:"packing,omitempty"`
 	DepositRate      int32              `bson:"depositRate,omitempty"`
 	TransactionType  string             `bson:"transactionType,omitempty"`
-	DeliveryTime     string             `bson:"deliveryTime,omitempty"`
+	DeliveryTime     uint64             `bson:"deliveryTime,omitempty"`
 	DeliveryLocation string             `bson:"deliveryLocation,omitempty"`
 	Assessor         string             `bson:"assessor,omitempty"`
 	Price            uint64             `bson:"price,omitempty"`

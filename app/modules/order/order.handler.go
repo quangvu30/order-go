@@ -33,8 +33,10 @@ func (h *OrderHandler) CreateOrder() gin.HandlerFunc {
 			return
 		}
 
+		orderId := primitive.NewObjectID()
 		orderData := models.Order{
-			OrderID: primitive.NewObjectID(),
+			ID:      orderId,
+			OrderID: orderId,
 		}
 		copier.Copy(&orderData, &newOrder)
 		order, err := h.Service.Create(orderData)
@@ -49,6 +51,44 @@ func (h *OrderHandler) CreateOrder() gin.HandlerFunc {
 		ctx.JSON(http.StatusCreated, config.Response{
 			Code:    200,
 			Payload: order,
+		})
+	}
+}
+
+func (h *OrderHandler) GetOrderById() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		orderId := ctx.Param("orderId")
+		order, err := h.Service.GetOrderById(orderId)
+		if err != nil {
+			log.Println(err.Error())
+			ctx.JSON(http.StatusInternalServerError, config.Response{
+				Code:    400,
+				Payload: err,
+			})
+			return
+		}
+		ctx.JSON(http.StatusOK, config.Response{
+			Code:    200,
+			Payload: order,
+		})
+	}
+}
+
+func (h *OrderHandler) ListOrderByAccount() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		accountCode := ctx.Query("accountCode")
+		orders, err := h.Service.ListOrderByAccount(accountCode)
+		if err != nil {
+			log.Println(err.Error())
+			ctx.JSON(http.StatusInternalServerError, config.Response{
+				Code:    400,
+				Payload: err,
+			})
+			return
+		}
+		ctx.JSON(http.StatusOK, config.Response{
+			Code:    200,
+			Payload: orders,
 		})
 	}
 }

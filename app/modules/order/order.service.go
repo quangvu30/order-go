@@ -3,7 +3,6 @@ package order
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/quangvu30/order-go/app/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,7 +16,7 @@ type OrderService struct {
 }
 
 func NewOrderService(d *mongo.Database) *OrderService {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx := context.TODO() // context.WithTimeout(context.Background(), 10*time.Second)
 	collection := d.Collection("orders")
 	return &OrderService{
 		Collection: collection,
@@ -55,7 +54,7 @@ func (s *OrderService) ListOrderByAccount(accountCode string) (orders []models.O
 	}
 
 	// Map result
-	if err = cursor.All(context.TODO(), &orders); err != nil {
+	if err = cursor.All(s.Ctx, &orders); err != nil {
 		return nil, err
 	}
 	return orders, nil

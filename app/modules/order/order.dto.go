@@ -12,7 +12,7 @@ type ReqCreateOrder struct {
 	Packing          string `json:"packing"`
 	DepositRate      int32  `json:"depositRate"`
 	TransactionType  string `json:"transactionType"`
-	DeliveryTime     string `json:"deliveryTime"`
+	DeliveryTime     uint64 `json:"deliveryTime"`
 	DeliveryLocation string `json:"deliveryLocation"`
 	Assessor         string `json:"assessor"`
 	Price            uint64 `json:"price"`
