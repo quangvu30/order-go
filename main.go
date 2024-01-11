@@ -6,6 +6,11 @@ import (
 	"github.com/quangvu30/order-go/logger"
 )
 
+type Data struct {
+	Name string
+	Age  int
+}
+
 func main() {
 
 	logging, err := logger.NewLogger()
@@ -13,5 +18,8 @@ func main() {
 		fmt.Println("Error:", err)
 		return
 	}
-	logging.Info("Hello World")
+	logging.Info(Data{
+		Name: "QUang",
+		Age:  18,
+	})
 }
