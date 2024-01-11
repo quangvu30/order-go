@@ -73,8 +73,11 @@ func (c *KafkaConnector) NewConsumer(topic string, partition int32, onMessage fu
 				fmt.Printf("Error: %v\n", err)
 
 			case <-c.Consumers[topic][partition].Signal:
-				fmt.Println("Closing partition consumer gracefully...")
-				partitionConsumer.Close()
+				if err := partitionConsumer.Close(); err != nil {
+					fmt.Printf("Error closing partition consumer: %v\n", err)
+				} else {
+					fmt.Println("Closing partition consumer gracefully...")
+				}
 				return
 			}
 		}

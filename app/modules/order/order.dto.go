@@ -1,6 +1,8 @@
 package order
 
-import "github.com/quangvu30/order-go/config"
+import (
+	"github.com/quangvu30/order-go/types"
+)
 
 type ReqCreateOrder struct {
 	KindOfOrder      string `json:"kindOfOrder"`
@@ -22,5 +24,5 @@ type ReqCreateOrder struct {
 }
 
 type ResCreateOrder struct {
-	config.Response
+	types.Response
 }

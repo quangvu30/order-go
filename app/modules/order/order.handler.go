@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/quangvu30/order-go/app/models"
-	"github.com/quangvu30/order-go/config"
+	"github.com/quangvu30/order-go/types"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -26,7 +26,7 @@ func (h *OrderHandler) CreateOrder() gin.HandlerFunc {
 		var newOrder ReqCreateOrder
 		if err := ctx.BindJSON(&newOrder); err != nil {
 			log.Println(err.Error())
-			ctx.JSON(http.StatusUnprocessableEntity, config.Response{
+			ctx.JSON(http.StatusUnprocessableEntity, types.Response{
 				Code:    400,
 				Payload: err,
 			})
@@ -42,13 +42,13 @@ func (h *OrderHandler) CreateOrder() gin.HandlerFunc {
 		order, err := h.Service.Create(orderData)
 		if err != nil {
 			log.Println(err.Error())
-			ctx.JSON(http.StatusInternalServerError, config.Response{
+			ctx.JSON(http.StatusInternalServerError, types.Response{
 				Code:    400,
 				Payload: err,
 			})
 			return
 		}
-		ctx.JSON(http.StatusCreated, config.Response{
+		ctx.JSON(http.StatusCreated, types.Response{
 			Code:    200,
 			Payload: order,
 		})
@@ -61,13 +61,13 @@ func (h *OrderHandler) GetOrderById() gin.HandlerFunc {
 		order, err := h.Service.GetOrderById(orderId)
 		if err != nil {
 			log.Println(err.Error())
-			ctx.JSON(http.StatusInternalServerError, config.Response{
+			ctx.JSON(http.StatusInternalServerError, types.Response{
 				Code:    400,
 				Payload: err,
 			})
 			return
 		}
-		ctx.JSON(http.StatusOK, config.Response{
+		ctx.JSON(http.StatusOK, types.Response{
 			Code:    200,
 			Payload: order,
 		})
@@ -80,13 +80,13 @@ func (h *OrderHandler) ListOrderByAccount() gin.HandlerFunc {
 		orders, err := h.Service.ListOrderByAccount(accountCode)
 		if err != nil {
 			log.Println(err.Error())
-			ctx.JSON(http.StatusInternalServerError, config.Response{
+			ctx.JSON(http.StatusInternalServerError, types.Response{
 				Code:    400,
 				Payload: err,
 			})
 			return
 		}
-		ctx.JSON(http.StatusOK, config.Response{
+		ctx.JSON(http.StatusOK, types.Response{
 			Code:    200,
 			Payload: orders,
 		})
