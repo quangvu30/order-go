@@ -1,0 +1,31 @@
+syntax = "proto3";
+option go_package = "github.com/quangvu30/order-go/grpc";
+package order;
+
+message Order {
+  string OrderID = 1;
+  string KindOfOrder = 2;
+  string KindOfOffer = 3;
+  string OrderType = 4;
+  string Commodity = 5;
+  string AccountCode = 6;
+  string Volume1Lot = 7;
+  string Packing = 8;
+  int32 DepositRate = 9;
+  string TransactionType = 10;
+  uint64 DeliveryTime = 11;
+  string DeliveryLocation = 12;
+  string Assessor = 13;
+  uint64 Price = 14;
+  string CurrencyUnit = 15;
+  string OrderVolume = 16;
+  int32 OrderValidity = 17;
+  string Status = 18;
+  int64 CreatedAt = 19;
+  string CreatedBy = 20;
+  string MatchedOrderID = 21;
+}
+
+service OrderTransfer {
+  rpc CreateOrder(Order) returns (Order) {}
+}

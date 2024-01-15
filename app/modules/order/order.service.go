@@ -3,37 +3,68 @@ package order
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/quangvu30/order-go/app/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/grpc"
+
+	pb "github.com/quangvu30/order-go/grpc"
 )
 
 type OrderService struct {
 	Ctx        context.Context
 	Collection *mongo.Collection
+	ClientRPC  pb.OrderTransferClient
 }
 
-func NewOrderService(d *mongo.Database) *OrderService {
+func NewOrderService(d *mongo.Database, conn *grpc.ClientConn) *OrderService {
 	ctx := context.TODO() // context.WithTimeout(context.Background(), 10*time.Second)
 	collection := d.Collection("orders")
 	return &OrderService{
 		Collection: collection,
 		Ctx:        ctx,
+		ClientRPC:  pb.NewOrderTransferClient(conn),
 	}
 }
 
-func (s *OrderService) Create(order models.Order) (orderId primitive.ObjectID, err error) {
+func (s *OrderService) Create(order models.Order, modifier string) (orderId string, err error) {
 	result, err := s.Collection.InsertOne(s.Ctx, order)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID.Hex(), err
 	}
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return primitive.NilObjectID, fmt.Errorf("InsertedID not correctly converted")
+		return primitive.NilObjectID.Hex(), fmt.Errorf("InsertedID not correctly converted")
 	} else {
-		return oid, nil
+		// Transfer the order to pre-order
+		response, err := s.ClientRPC.CreateOrder(s.Ctx, &pb.Order{
+			OrderID:          order.OrderID.Hex(),
+			KindOfOrder:      order.KindOfOrder,
+			KindOfOffer:      order.KindOfOffer,
+			OrderType:        order.OrderType,
+			Commodity:        order.Commodity.Hex(),
+			AccountCode:      order.AccountCode,
+			Volume1Lot:       order.Volume1Lot,
+			DepositRate:      order.DepositRate,
+			TransactionType:  order.TransactionType,
+			DeliveryTime:     order.DeliveryTime,
+			DeliveryLocation: order.DeliveryLocation,
+			Price:            order.Price,
+			OrderVolume:      order.OrderVolume,
+			Packing:          order.Packing,
+			Assessor:         order.Assessor,
+			OrderValidity:    order.OrderValidity,
+			Status:           order.Status,
+			CreatedAt:        time.Now().UnixMilli(),
+			CreatedBy:        modifier,
+		})
+		if err != nil {
+			return oid.Hex(), err
+		}
+		return response.OrderID, nil
 	}
 }
 

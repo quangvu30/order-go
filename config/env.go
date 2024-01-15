@@ -6,10 +6,12 @@ import (
 )
 
 type Config struct {
+	GinMode    string `envconfig:"GIN_MODE"`
 	ListenPort string `envconfig:"HTTP_PORT"`
 	MongoURL   string `envconfig:"MONGO_URI_ORDERROUTE"`
 	Database   string `envconfig:"DATABASE"`
 	JwtSecret  string `envconfig:"JWT_SECRET"`
+	GrpcAddr   string `envconfig:"GRPC_ADDR"`
 }
 
 func GetConfig() (*Config, error) {

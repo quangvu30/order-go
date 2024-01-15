@@ -13,6 +13,8 @@ type Logger struct {
 	log *logrus.Logger
 }
 
+var Log *Logger
+
 func NewLogger() (*Logger, error) {
 	log := logrus.New()
 	log.SetFormatter(&logrus.TextFormatter{})
@@ -29,22 +31,23 @@ func NewLogger() (*Logger, error) {
 	} else {
 		log.Info("Failed to log to file, using default stderr")
 	}
-	return &Logger{
+	Log = &Logger{
 		log: log,
-	}, nil
+	}
+	return Log, nil
 }
 
-func (l *Logger) Info(msg interface{}) {
+func (l *Logger) Info(msg ...interface{}) {
 	fmt.Printf("[INFO][%s] %v\n", time.Now().UTC().Format("2006-01-02 15:04:05"), msg)
-	l.log.Info(msg)
+	l.log.Info(msg...)
 }
 
-func (l *Logger) Error(msg interface{}) {
+func (l *Logger) Error(msg ...interface{}) {
 	fmt.Printf("[ERROR][%s] %v\n", time.Now().UTC().Format("2006-01-02 15:04:05"), msg)
-	l.log.Error(msg)
+	l.log.Error(msg...)
 }
 
-func (l *Logger) Warn(msg interface{}) {
+func (l *Logger) Warn(msg ...interface{}) {
 	fmt.Printf("[WARN][%s] %v\n", time.Now().UTC().Format("2006-01-02 15:04:05"), msg)
-	l.log.Warn(msg)
+	l.log.Warn(msg...)
 }

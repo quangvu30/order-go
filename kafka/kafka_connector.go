@@ -2,10 +2,10 @@ package kafka
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/IBM/sarama"
+	"github.com/quangvu30/order-go/logger"
 )
 
 type ConsumerInfo struct {
@@ -34,7 +34,7 @@ func NewKafkaConnector(brokers []string) *KafkaConnector {
 func (c *KafkaConnector) NewProducer(topic string) (*sarama.SyncProducer, error) {
 	producer, err := sarama.NewSyncProducer(c.Brokers, &c.Config)
 	if err != nil {
-		log.Fatalf("Error creating Kafka producer: %v", err)
+		logger.Log.Error("Error creating Kafka producer: ", err.Error())
 		return nil, err
 	}
 	c.Producers[topic] = producer
@@ -44,12 +44,12 @@ func (c *KafkaConnector) NewProducer(topic string) (*sarama.SyncProducer, error)
 func (c *KafkaConnector) NewConsumer(topic string, partition int32, onMessage func(data []byte)) {
 	consumer, err := sarama.NewConsumer(c.Brokers, &c.Config)
 	if err != nil {
-		log.Fatalf("Error creating Kafka consumer: %v", err)
+		logger.Log.Error("Error creating Kafka consumer: ", err.Error())
 		return
 	}
 	partitionConsumer, err := consumer.ConsumePartition(topic, partition, sarama.OffsetNewest)
 	if err != nil {
-		log.Fatalf("Error creating partition consumer: %v", err)
+		logger.Log.Error("Error creating partition consumer: ", err.Error())
 		return
 	}
 
@@ -60,8 +60,7 @@ func (c *KafkaConnector) NewConsumer(topic string, partition int32, onMessage fu
 		Consumer:  consumer,
 	})
 
-	fmt.Printf("Consumer %s started!", topic)
-
+	logger.Log.Info(fmt.Sprintf("Consumer %s started!", topic))
 	// Start a goroutine to consume messages
 	go func() {
 		for {
@@ -70,13 +69,13 @@ func (c *KafkaConnector) NewConsumer(topic string, partition int32, onMessage fu
 				onMessage(msg.Value)
 
 			case err := <-partitionConsumer.Errors():
-				fmt.Printf("Error: %v\n", err)
+				logger.Log.Error("Error: ", err.Error())
 
 			case <-c.Consumers[topic][partition].Signal:
 				if err := partitionConsumer.Close(); err != nil {
-					fmt.Printf("Error closing partition consumer: %v\n", err)
+					logger.Log.Error("Error closing partition consumer: ", err.Error())
 				} else {
-					fmt.Println("Closing partition consumer gracefully...")
+					logger.Log.Info("Closing partition consumer gracefully...")
 				}
 				return
 			}
@@ -87,7 +86,7 @@ func (c *KafkaConnector) NewConsumer(topic string, partition int32, onMessage fu
 func (c *KafkaConnector) TerminateConsumer(topic string, partition int32) {
 	close(c.Consumers[topic][partition].Signal)
 	if err := c.Consumers[topic][partition].Consumer.Close(); err != nil {
-		fmt.Println("Error closing Kafka consumer:", err)
+		logger.Log.Error("Error closing Kafka consumer:", err.Error())
 	}
 	c.Consumers[topic] = append(c.Consumers[topic][:partition], c.Consumers[topic][partition+1:]...)
 }
